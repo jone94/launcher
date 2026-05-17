@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Start stránka</title>
+
+<style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        overflow-x: hidden;
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: white;
+    }
+
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .grid {
+        width: 100%;
+        max-width: 520px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .tile {
+        min-width: 0;
+        text-decoration: none;
+        color: white;
+        background: #1f2937;
+        border-radius: 13px;
+        padding: 7px 3px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1 / 1;
+        transition: transform 0.12s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .tile:active { transform: scale(0.96); }
+
+    .icon {
+        width: clamp(27px, 8vw, 40px);
+        height: clamp(27px, 8vw, 40px);
+        border-radius: 10px;
+        margin-bottom: 5px;
+        object-fit: cover;
+        background: #374151;
+        flex: 0 0 auto;
+    }
+
+    .label {
+        width: 100%;
+        padding: 0 1px;
+        font-size: clamp(9px, 2.45vw, 12px);
+        text-align: center;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+        font-weight: 600;
+    }
+
+    @media (max-width: 360px) {
+        body { padding: 5px; }
+        .grid { gap: 5px; }
+        .tile {
+            border-radius: 11px;
+            padding: 5px 2px;
+        }
+        .icon {
+            width: clamp(24px, 7.4vw, 34px);
+            height: clamp(24px, 7.4vw, 34px);
+            margin-bottom: 4px;
+        }
+        .label { font-size: clamp(8px, 2.35vw, 10px); }
+    }
+</style>
+</head>
+
+<body>
+<div class="grid">
+<a class="tile" href="https://muj.monacobet.cz/profil/vklad" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=monacobet.cz&sz=128" alt="">
+<div class="label">MONACO</div>
+</a>
+<a class="tile" href="https://www.tipsport.cz/prihlaseni" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=tipsport.cz&sz=128" alt="">
+<div class="label">TIPSPORT</div>
+</a>
+<a class="tile" href="https://www.chance.cz/prihlaseni" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=chance.cz&sz=128" alt="">
+<div class="label">CHANCE</div>
+</a>
+<a class="tile" href="https://www.allwyn.cz/hry" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=allwyn.cz&sz=128" alt="">
+<div class="label">SAZKA</div>
+</a>
+<a class="tile" href="https://www.synottip.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=synottip.cz&sz=128" alt="">
+<div class="label">SYNOTTIP</div>
+</a>
+<a class="tile" href="https://www.vsadahrej.cz/bonuses" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=vsadahrej.cz&sz=128" alt="">
+<div class="label">VSAĎ A HREJ</div>
+</a>
+<a class="tile" href="https://www.magicplanet.cz/bonuses" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=magicplanet.cz&sz=128" alt="">
+<div class="label">MAGIC</div>
+</a>
+<a class="tile" href="https://www.69games.cz/bonuses" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=69games.cz&sz=128" alt="">
+<div class="label">69GAMES</div>
+</a>
+<a class="tile" href="https://herna.gapagroup.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=herna.gapagroup.cz&sz=128" alt="">
+<div class="label">DĚDEK</div>
+</a>
+<a class="tile" href="https://online.casinoadmiral.cz/lobby" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=online.casinoadmiral.cz&sz=128" alt="">
+<div class="label">ADMIRAL</div>
+</a>
+<a class="tile" href="https://www.apollogames.cz/bonus-market" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=apollogames.cz&sz=128" alt="">
+<div class="label">APOLLO</div>
+</a>
+<a class="tile" href="https://www.tokyo.cz/bonuses" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=tokyo.cz&sz=128" alt="">
+<div class="label">TOKYO</div>
+</a>
+<a class="tile" href="https://www.ifortuna.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=ifortuna.cz&sz=128" alt="">
+<div class="label">FORTUNA</div>
+</a>
+<a class="tile" href="https://www.betano.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=betano.cz&sz=128" alt="">
+<div class="label">BETANO</div>
+</a>
+<a class="tile" href="https://www.luckybet.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=luckybet.cz&sz=128" alt="">
+<div class="label">LUCKYBET</div>
+</a>
+<a class="tile" href="https://www.forbescasino.cz/bonuses" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=forbescasino.cz&sz=128" alt="">
+<div class="label">FORBES</div>
+</a>
+<a class="tile" href="https://www.maxa.cz/prihlaseni" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=maxa.cz&sz=128" alt="">
+<div class="label">MAXA</div>
+</a>
+<a class="tile" href="https://www.merkurxtip.cz/promotions" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=merkurxtip.cz&sz=128" alt="">
+<div class="label">MERKUR</div>
+</a>
+<a class="tile" href="https://www.kingsbet.cz/promo-bonusy" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=kingsbet.cz&sz=128" alt="">
+<div class="label">KINGSBET</div>
+</a>
+<a class="tile" href="https://www.betor.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=betor.cz&sz=128" alt="">
+<div class="label">BETOR</div>
+</a>
+<a class="tile" href="https://www.casino-kartac.cz/cs/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=casino-kartac.cz&sz=128" alt="">
+<div class="label">KARTÁČ</div>
+</a>
+<a class="tile" href="https://www.grandwin.cz/cs/bonusy" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=grandwin.cz&sz=128" alt="">
+<div class="label">GRANDWIN</div>
+</a>
+<a class="tile" href="https://bet-x.cz/promotions" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=bet-x.cz&sz=128" alt="">
+<div class="label">BETX</div>
+</a>
+<a class="tile" href="https://www.bonvercasino.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=bonvercasino.cz&sz=128" alt="">
+<div class="label">BONVER</div>
+</a>
+<a class="tile" href="https://www.ecasino.cz/cs/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=ecasino.cz&sz=128" alt="">
+<div class="label">ECASINO</div>
+</a>
+<a class="tile" href="https://www.ifortuna.cz/bonus/lucky-boxy" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=ifortuna.cz&sz=128" alt="">
+<div class="label">FORTUNA BOXY</div>
+</a>
+<a class="tile" href="https://dedekhraje.gapagroup.cz/" target="_blank" rel="noreferrer noopener" referrerpolicy="no-referrer">
+<img class="icon" src="https://www.google.com/s2/favicons?domain=dedekhraje.gapagroup.cz&sz=128" alt="">
+<div class="label">DĚDEK BLOG</div>
+</a>
+</div>
+</body>
+</html>
