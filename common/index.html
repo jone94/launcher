@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<title>Rozcestnik</title>
+<title>Rozcestnik - TEST</title>
 
 <style>
     :root { color-scheme: dark; }
@@ -53,6 +53,12 @@
         aspect-ratio: 1 / 1;
         transition: transform 0.12s ease;
         -webkit-tap-highlight-color: transparent;
+
+        position: relative;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
     }
 
     .tile:active { transform: scale(0.96); }
@@ -75,6 +81,81 @@
         line-height: 1.1;
         overflow-wrap: anywhere;
         font-weight: 600;
+    }
+
+    .tile.has-children::after {
+        content: "⋯";
+        position: absolute;
+        top: 4px;
+        right: 7px;
+        font-size: 16px;
+        color: #9ca3af;
+        line-height: 1;
+    }
+
+    .submenu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.58);
+    }
+
+    .submenu-overlay.open {
+        display: flex;
+    }
+
+    .submenu-panel {
+        width: min(340px, 92vw);
+        max-height: 82vh;
+        overflow: auto;
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 14px;
+        padding: 12px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .submenu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .submenu-title {
+        margin: 0;
+        font-size: 18px;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .submenu-close {
+        border: 0;
+        border-radius: 8px;
+        padding: 7px 10px;
+        background: #374151;
+        color: white;
+        cursor: pointer;
+
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        touch-action: manipulation;
+    }
+
+    .submenu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .submenu-grid .tile {
+        width: 100%;
     }
 
     @media (max-width: 360px) {
@@ -102,8 +183,19 @@
     {
       "name": "MONACO",
       "url": "https://muj.monacobet.cz/profil/vklad",
-      "iconUrl": "https://www.google.com/s2/favicons?domain=monacobet.cz&sz=128"
-     
+      "iconUrl": "https://www.google.com/s2/favicons?domain=monacobet.cz&sz=128",
+      "children": [
+        {
+          "name": "RSPNJKR",
+          "url": "https://casino.monacobet.cz/game/run/1672722c-c38e-4ba1-8dfd-274114c7b767",
+          "iconUrl": "https://www.google.com/s2/favicons?domain=monacobet.cz&sz=128"
+        },
+        {
+          "name": "pokus",
+          "url": "https://example.com/b",
+          "iconUrl": "https://www.google.com/s2/favicons?domain=example.com&sz=128"
+        }
+      ]
     },
     {
       "name": "TIPSPORT",
@@ -248,37 +340,149 @@
 <body>
 <div class="grid" id="launcher-grid"></div>
 
+<div id="submenu-overlay" class="submenu-overlay" aria-hidden="true">
+  <div class="submenu-panel" role="dialog" aria-modal="true" aria-labelledby="submenu-title">
+    <div class="submenu-header">
+      <h2 id="submenu-title" class="submenu-title">Další odkazy</h2>
+      <button id="submenu-close" class="submenu-close" type="button">✕ Zavřít</button>
+    </div>
+    <div id="submenu-grid" class="submenu-grid"></div>
+  </div>
+</div>
+
 <script>
 (function () {
     const dataEl = document.getElementById("launcher-data");
     const grid = document.getElementById("launcher-grid");
+    const submenuOverlay = document.getElementById("submenu-overlay");
+    const submenuGrid = document.getElementById("submenu-grid");
+    const submenuTitle = document.getElementById("submenu-title");
+    const submenuClose = document.getElementById("submenu-close");
+
+    const LONG_PRESS_MS = 550;
+    let longPressTimer = null;
+    let longPressTriggered = false;
+
+    function createTile(tile) {
+        const a = document.createElement("a");
+        a.className = "tile";
+        a.href = tile.url || "#";
+        a.rel = "noreferrer noopener";
+        a.referrerPolicy = "no-referrer";
+
+        const hasChildren = Array.isArray(tile.children) && tile.children.length > 0;
+        if (hasChildren) {
+            a.classList.add("has-children");
+        }
+
+        const img = document.createElement("img");
+        img.className = "icon";
+        img.src = tile.iconUrl || "";
+        img.alt = "";
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = tile.name || "LINK";
+
+        a.appendChild(img);
+        a.appendChild(label);
+
+        if (hasChildren) {
+            a.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+                openSubmenu(tile);
+            });
+
+            a.addEventListener("pointerdown", (event) => {
+                if (event.pointerType === "mouse" && event.button !== 0) {
+                    return;
+                }
+
+                longPressTriggered = false;
+                clearTimeout(longPressTimer);
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    openSubmenu(tile);
+                }, LONG_PRESS_MS);
+            });
+
+            ["pointerup", "pointercancel", "pointerleave"].forEach(type => {
+                a.addEventListener(type, () => {
+                    clearTimeout(longPressTimer);
+                });
+            });
+
+            a.addEventListener("click", (event) => {
+                if (longPressTriggered) {
+                    event.preventDefault();
+                    longPressTriggered = false;
+                }
+            });
+
+            a.addEventListener("mouseenter", () => {
+                if (window.matchMedia("(hover: hover)").matches) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = setTimeout(() => openSubmenu(tile), 700);
+                }
+            });
+
+            a.addEventListener("mouseleave", () => {
+                clearTimeout(longPressTimer);
+            });
+        }
+
+        return a;
+    }
+
+    function openSubmenu(tile) {
+        submenuTitle.textContent = tile.name || "Další odkazy";
+        submenuGrid.innerHTML = "";
+
+        tile.children.forEach(child => {
+            submenuGrid.appendChild(createTile(child));
+        });
+
+        submenuOverlay.classList.add("open");
+        submenuOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSubmenu() {
+        submenuOverlay.classList.remove("open");
+        submenuOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    submenuClose.addEventListener("click", closeSubmenu);
+
+    submenuOverlay.addEventListener("click", (event) => {
+        if (event.target === submenuOverlay) {
+            closeSubmenu();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSubmenu();
+        }
+    });
 
     function render() {
-        const data = JSON.parse(dataEl.textContent || "{\"tiles\":[]}");
-        const tiles = Array.isArray(data.tiles) ? data.tiles : [];
+        try {
+            const data = JSON.parse(dataEl.textContent || "{\"tiles\":[]}");
+            const tiles = Array.isArray(data.tiles) ? data.tiles : [];
 
-        grid.innerHTML = "";
+            grid.innerHTML = "";
 
-        tiles.forEach((tile) => {
-            const a = document.createElement("a");
-            a.className = "tile";
-            a.href = tile.url;
-            a.rel = "noreferrer noopener";
-            a.referrerPolicy = "no-referrer";
-
-            const img = document.createElement("img");
-            img.className = "icon";
-            img.src = tile.iconUrl || "";
-            img.alt = "";
-
-            const label = document.createElement("div");
-            label.className = "label";
-            label.textContent = tile.name || "LINK";
-
-            a.appendChild(img);
-            a.appendChild(label);
-            grid.appendChild(a);
-        });
+            tiles.forEach(tile => {
+                grid.appendChild(createTile(tile));
+            });
+        } catch (error) {
+            console.error("Chyba v launcher-data JSON:", error);
+            grid.innerHTML = `
+                <div style="grid-column:1/-1;padding:16px;background:#7f1d1d;border-radius:12px;">
+                    Chyba v datech rozcestníku: ${error.message}
+                </div>
+            `;
+        }
     }
 
     render();
