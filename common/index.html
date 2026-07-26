@@ -163,6 +163,10 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 7px;
     }
+    
+    #submenuGrid.touch-locked {
+      pointer-events: none;
+    }
 
     .submenu-grid .tile {
         width: 100%;
@@ -469,6 +473,7 @@
     const LONG_PRESS_MS = 550;
     let longPressTimer = null;
     let longPressTriggered = false;
+    let submenuTouchLocked = false;
 
     function createTile(tile) {
         const a = document.createElement("a");
@@ -500,23 +505,61 @@
                 openSubmenu(tile);
             });
 
-            a.addEventListener("pointerdown", (event) => {
+           a.addEventListener("pointerdown", (event) => {
                 if (event.pointerType === "mouse" && event.button !== 0) {
                     return;
                 }
-
+            
                 longPressTriggered = false;
                 clearTimeout(longPressTimer);
+            
+                /*
+                 * Původní dotyk zůstane přiřazen původní dlaždici,
+                 * i když se mezitím otevře submenu pod prstem.
+                 */
+                if (a.setPointerCapture) {
+                    try {
+                        a.setPointerCapture(event.pointerId);
+                    } catch (_) {
+                        // Některé prohlížeče pointer capture nepodporují.
+                    }
+                }
+            
                 longPressTimer = setTimeout(() => {
                     longPressTriggered = true;
+                    submenuTouchLocked = true;
+            
+                    submenuGrid.classList.add("touch-locked");
+            
                     openSubmenu(tile);
                 }, LONG_PRESS_MS);
             });
 
-            ["pointerup", "pointercancel", "pointerleave"].forEach(type => {
+            ["pointerup", "pointercancel"].forEach(type => {
                 a.addEventListener(type, () => {
                     clearTimeout(longPressTimer);
+            
+                    if (submenuTouchLocked) {
+                        /*
+                         * Krátké zpoždění potlačí i následné syntetické
+                         * kliknutí, které může Android Chrome vytvořit.
+                         */
+                        setTimeout(() => {
+                            submenuTouchLocked = false;
+                            submenuGrid.classList.remove("touch-locked");
+                        }, 150);
+                    }
                 });
+            });
+            
+            a.addEventListener("pointerleave", () => {
+                /*
+                 * Pokud long press ještě nebyl aktivován,
+                 * opuštění dlaždice časovač zruší.
+                 */
+                if (!longPressTriggered) {
+                    clearTimeout(longPressTimer);
+                }
             });
 
             a.addEventListener("click", (event) => {
@@ -541,14 +584,22 @@
         return a;
     }
 
-    function openSubmenu(tile) {
+   function openSubmenu(tile) {
+        const children = Array.isArray(tile.children)
+            ? tile.children
+            : [];
+    
+        if (children.length === 0) {
+            return;
+        }
+    
         submenuTitle.textContent = tile.name || "Další odkazy";
         submenuGrid.innerHTML = "";
-
-        tile.children.forEach(child => {
+    
+        children.forEach(child => {
             submenuGrid.appendChild(createTile(child));
         });
-
+    
         submenuOverlay.classList.add("open");
         submenuOverlay.setAttribute("aria-hidden", "false");
     }
@@ -556,6 +607,10 @@
     function closeSubmenu() {
         submenuOverlay.classList.remove("open");
         submenuOverlay.setAttribute("aria-hidden", "true");
+    
+        clearTimeout(longPressTimer);
+        submenuTouchLocked = false;
+        submenuGrid.classList.remove("touch-locked");
     }
 
     submenuClose.addEventListener("click", closeSubmenu);
