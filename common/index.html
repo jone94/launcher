@@ -568,17 +568,6 @@
                     longPressTriggered = false;
                 }
             });
-
-            a.addEventListener("mouseenter", () => {
-                if (window.matchMedia("(hover: hover)").matches) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = setTimeout(() => openSubmenu(tile), 700);
-                }
-            });
-
-            a.addEventListener("mouseleave", () => {
-                clearTimeout(longPressTimer);
-            });
         }
 
         return a;
