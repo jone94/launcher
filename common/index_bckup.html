@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>Rozcestnik</title>
+
+<style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        overflow-x: hidden;
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: white;
+    }
+
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .grid {
+        width: 100%;
+        max-width: 520px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .tile {
+        min-width: 0;
+        text-decoration: none;
+        color: white;
+        background: #1f2937;
+        border-radius: 13px;
+        padding: 4px 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1 / 1;
+        transition: transform 0.12s ease;
+        -webkit-tap-highlight-color: transparent;
+
+        position: relative;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    .tile:active { transform: scale(0.96); }
+
+    .icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 11px;
+        margin-bottom: 5px;
+        object-fit: contain;
+        background: #374151;
+        flex: 0 0 auto;
+        padding: 3px;
+    }
+
+    .submenu-grid .icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 13px;
+        object-fit: contain;
+        padding: 3px;
+        margin-bottom: 6px;
+    }
+    
+    .label {
+        width: 100%;
+        padding: 0 1px;
+        font-size: 12px;
+        text-align: center;
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+        font-weight: 600;
+    }
+
+    .tile.has-children::after {
+        content: "⋯";
+        position: absolute;
+        top: 4px;
+        right: 7px;
+        font-size: 16px;
+        color: #9ca3af;
+        line-height: 1;
+    }
+
+    .submenu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.58);
+    }
+
+    .submenu-overlay.open {
+        display: flex;
+    }
+
+    .submenu-panel {
+        width: min(340px, 92vw);
+        max-height: 82vh;
+        overflow: auto;
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 14px;
+        padding: 12px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .submenu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .submenu-title {
+        margin: 0;
+        font-size: 18px;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .submenu-close {
+        border: 0;
+        border-radius: 8px;
+        padding: 7px 10px;
+        background: #374151;
+        color: white;
+        cursor: pointer;
+
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        touch-action: manipulation;
+    }
+
+    .submenu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+    
+    #submenuGrid.touch-locked {
+      pointer-events: none;
+    }
+
+    .submenu-grid .tile {
+        width: 100%;
+    }
+
+    @media (max-width: 360px) {
+        body { padding: 5px; }
+        .grid { gap: 5px; }
+        .tile {
+            border-radius: 11px;
+            padding: 5px 2px;
+        }
+        .icon {
+            width: 42px;
+            height: 42px;
+            margin-bottom: 4px;
+        }
+        .label {
+            font-size: 11px;
+        }
+    }
+</style>
+
+<!-- Single source of truth for both GitHub page and dashboard -->
+<script id="launcher-data" type="application/json">
+{
+  "tiles": [
+    {
+      "name": "MONACO",
+      "url": "https://muj.monacobet.cz/profil/vklad",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=monacobet.cz&sz=128",
+      "children": [
+        {
+          "name": "RJ",
+          "url": "https://casino.monacobet.cz/game/run/1672722c-c38e-4ba1-8dfd-274114c7b767",
+          "iconUrl": "icons/icon_rspnjkr.png"
+        },
+        {
+          "name": "RJ 81",
+          "url": "https://casino.monacobet.cz/game/run/fc4591f6-04cc-44dc-8419-d3228f794053",
+          "iconUrl": "icons/icon_rspnjkr81.png"
+        },
+        {
+          "name": "Multi Vegas 81",
+          "url": "https://casino.monacobet.cz/game/run/156f6b9f-6065-45ac-a5cb-c485395ceeab",
+          "iconUrl": "icons/icon_multiveg81.png"
+        },
+        {
+          "name": "Firebird81",
+          "url": "https://casino.monacobet.cz/game/run/3bd9bb8f-143d-4c68-8610-b41686fd7a55",
+          "iconUrl": "icons/icon_firebird81.png"
+        },
+        {
+          "name": "Midnight Fruits 81",
+          "url": "https://casino.monacobet.cz/game/run/453ae742-67ab-4352-b638-aae95350fb9c",
+          "iconUrl": "icons/icon_midfruits81.png"
+        },
+        {
+          "name": "Respin Double Plus",
+          "url": "https://casino.monacobet.cz/game/run/1f1cb487-48ac-4533-8d69-a4789c27e794",
+          "iconUrl": "icons/icon_respin_double_plus.png"
+        },
+        {
+          "name": "100 Hot Wild",
+          "url": "https://casino.monacobet.cz/game/run/c2233d7d-8af7-4822-aad1-6f4df33ee859",
+          "iconUrl": "icons/icon_100HW.png"
+        },
+        {
+          "name": "Simply The Best 81",
+          "url": "https://casino.monacobet.cz/game/run/5a85d0d5-c65f-4687-8c59-079ed9ec798d",
+          "iconUrl": "icons/icon_thebest81.png"
+        },
+        {
+          "name": "Black Pearl",
+          "url": "https://casino.monacobet.cz/game/run/22309776-40e3-4a95-a019-42442010cbc5",
+          "iconUrl": "icons/icon_blackpearl.png"
+        }
+      ]
+    },
+    {
+      "name": "TIPSPORT",
+      "url": "https://www.tipsport.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=tipsport.cz&sz=128"
+    },
+    {
+      "name": "CHANCE",
+      "url": "https://www.chance.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=chance.cz&sz=128"
+    },
+    {
+      "name": "SAZKA",
+      "url": "https://www.allwyn.cz/hry",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=allwyn.cz&sz=128"
+    },
+    {
+      "name": "MAXA",
+      "url": "https://www.maxa.cz/",
+      "iconUrl": "icons/icon_maxa.png"
+    },
+    {
+      "name": "VSAĎ A HREJ",
+      "url": "https://www.vsadahrej.cz/bonuses",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=vsadahrej.cz&sz=128"
+    },
+    {
+      "name": "MAGIC",
+      "url": "https://www.magicplanet.cz/bonuses",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=magicplanet.cz&sz=128"
+    },
+    {
+      "name": "69GAMES",
+      "url": "https://www.69games.cz/bonuses",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=69games.cz&sz=128"
+    },
+    {
+      "name": "DĚDEK",
+      "url": "https://herna.gapagroup.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=herna.gapagroup.cz&sz=128"
+    },
+    {
+      "name": "ADMIRAL",
+      "url": "https://online.casinoadmiral.cz/lobby",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=online.casinoadmiral.cz&sz=128"
+    },
+    {
+      "name": "APOLLO",
+      "url": "https://www.apollogames.cz/bonus-market",
+      "iconUrl": "icons/icon_apollogames.png",
+      "children": [
+        {
+          "name": "RJ (Synot)",
+          "url": "https://www.apollogames.cz/game/338/real",
+          "iconUrl": "icons/icon_rspnjkr.png"
+        },
+        {
+          "name": "Myst81 (T4B)",
+          "url": "https://www.apollogames.cz/game/609/real",
+          "iconUrl": "icons/icon_myst81.png"
+        },
+        {
+          "name": "100HW (T4B)",
+          "url": "https://www.apollogames.cz/game/293/real",
+          "iconUrl": "icons/icon_100HW.png"
+        },
+        {
+          "name": "Burn.Slots (BF)",
+          "url": "https://www.apollogames.cz/game/268/real",
+          "iconUrl": "icons/icon_burningslots.png"
+        },
+        {
+          "name": "FierySlots (BF)",
+          "url": "https://www.apollogames.cz/game/486/real",
+          "iconUrl": "icons/icon_fieryslots.png"
+        },
+        {
+          "name": "Twist.Lab (Hacksaw)",
+          "url": "https://www.apollogames.cz/game/582/real",
+          "iconUrl": "icons/icon_twistedlab.png"
+        },
+        {
+          "name": "LeBandit (Hacksaw)",
+          "url": "https://www.apollogames.cz/game/577/real",
+          "iconUrl": "icons/icon_lebandit.png"
+        },
+        {
+          "name": "666 (Hacksaw)",
+          "url": "https://www.apollogames.cz/game/579/real",
+          "iconUrl": "icons/icon_666.png"
+        },
+        {
+          "name": "777coins (Wazdan)",
+          "url": "https://www.apollogames.cz/game/262/real",
+          "iconUrl": "icons/icon_777coins.png"
+        },
+        {
+          "name": "Sizzling777 (Wazdan)",
+          "url": "https://www.apollogames.cz/game/149/real",
+          "iconUrl": "icons/icon_sizzling777.png"
+        },
+        {
+          "name": "CloverMadd (ABX)",
+          "url": "https://www.apollogames.cz/game/711/real",
+          "iconUrl": "icons/icon_clovermadness.png"
+        },
+        {
+          "name": "Big5 (Bigwin)",
+          "url": "https://www.apollogames.cz/game/488/real",
+          "iconUrl": "icons/icon_big5.png"
+        },
+        {
+          "name": "HappyBar27 (Bigwin)",
+          "url": "https://www.apollogames.cz/game/328/real",
+          "iconUrl": "icons/icon_happybar27.png"
+        },
+        {
+          "name": "TheRave (NoLimit)",
+          "url": "https://www.apollogames.cz/game/596/real",
+          "iconUrl": "icons/icon_therave.png"
+        },
+        {
+          "name": "EastWest (NoLimit)",
+          "url": "https://www.apollogames.cz/game/589/real",
+          "iconUrl": "icons/icon_eastwest.png"
+        },
+        {
+          "name": "Flam.Fruit (TomHorn)",
+          "url": "https://www.apollogames.cz/game/91/real",
+          "iconUrl": "icons/icon_flamingfruit.png"
+        },
+        {
+          "name": "BigChilli (CTI)",
+          "url": "https://www.apollogames.cz/game/688/real",
+          "iconUrl": "icons/icon_bigchilli.png"
+        },
+        {
+          "name": "20CloversHot (CTI)",
+          "url": "https://www.apollogames.cz/game/692/real",
+          "iconUrl": "icons/icon_20clovershot.png"
+        },
+        {
+          "name": "BigBass (Pragmatic)",
+          "url": "https://www.apollogames.cz/game/133/real",
+          "iconUrl": "icons/icon_bigbass.png"
+        }
+      ]
+    },
+    {
+      "name": "TOKYO",
+      "url": "https://www.tokyo.cz/bonuses",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=tokyo.cz&sz=128"
+    },
+    {
+      "name": "FORTUNA",
+      "url": "https://www.ifortuna.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=ifortuna.cz&sz=128"
+    },
+    {
+      "name": "BETANO",
+      "url": "https://www.betano.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=betano.cz&sz=128"
+    },
+    {
+      "name": "LUCKYBET",
+      "url": "https://www.luckybet.cz/",
+      "iconUrl": "icons/icon_luckybet.png"
+    },
+    {
+      "name": "FORBES",
+      "url": "https://www.forbescasino.cz/bonuses",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=forbescasino.cz&sz=128"
+    },
+    {
+      "name": "FREE",
+      "url": "www.google.com",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=google.com&sz=128"
+    },
+    {
+      "name": "MERKUR",
+      "url": "https://www.merkurxtip.cz/promotions",
+      "iconUrl": "icons/icon_merkurgaming.png"
+    },
+    {
+      "name": "KINGSBET",
+      "url": "https://www.kingsbet.cz/promo-bonusy",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=kingsbet.cz&sz=128"
+    },
+    {
+      "name": "BETOR",
+      "url": "https://www.betor.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=betor.cz&sz=128"
+    },
+    {
+      "name": "KARTÁČ",
+      "url": "https://www.casino-kartac.cz/cs/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=casino-kartac.cz&sz=128"
+    },
+    {
+      "name": "GRANDWIN",
+      "url": "https://www.grandwin.cz/cs/bonusy",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=grandwin.cz&sz=128"
+    },
+    {
+      "name": "BETX",
+      "url": "https://bet-x.cz/promotions",
+      "iconUrl": "icons/icon_betx.png"
+    },
+    {
+      "name": "BONVER",
+      "url": "https://www.bonvercasino.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=bonvercasino.cz&sz=128"
+    },
+    {
+      "name": "SAZKA KALEND",
+      "url": "https://www.allwyn.cz/leto-plne-vyher",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=allwyn.cz&sz=128"
+    },
+    {
+      "name": "FORTUNA BOXY",
+      "url": "https://www.ifortuna.cz/bonus/lucky-boxy",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=ifortuna.cz&sz=128"
+    },
+    {
+      "name": "DĚDEK BLOG",
+      "url": "https://dedekhraje.gapagroup.cz/",
+      "iconUrl": "https://www.google.com/s2/favicons?domain=dedekhraje.gapagroup.cz&sz=128"
+    },
+    {
+      "name": "Tonys",
+      "url": "https://www.synottip.cz/",
+      "iconUrl": "icons/icon_synotpirate.png"
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<div class="grid" id="launcher-grid"></div>
+
+<div id="submenu-overlay" class="submenu-overlay" aria-hidden="true">
+  <div class="submenu-panel" role="dialog" aria-modal="true" aria-labelledby="submenu-title">
+    <div class="submenu-header">
+      <h2 id="submenu-title" class="submenu-title">Další odkazy</h2>
+      <button id="submenu-close" class="submenu-close" type="button">✕ Zavřít</button>
+    </div>
+    <div id="submenu-grid" class="submenu-grid"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+    const dataEl = document.getElementById("launcher-data");
+    const grid = document.getElementById("launcher-grid");
+    const submenuOverlay = document.getElementById("submenu-overlay");
+    const submenuGrid = document.getElementById("submenu-grid");
+    const submenuTitle = document.getElementById("submenu-title");
+    const submenuClose = document.getElementById("submenu-close");
+
+    const LONG_PRESS_MS = 550;
+    let longPressTimer = null;
+    let longPressTriggered = false;
+    let submenuTouchLocked = false;
+
+    function createTile(tile) {
+        const a = document.createElement("a");
+        a.className = "tile";
+        a.href = tile.url || "#";
+        a.rel = "noreferrer noopener";
+        a.referrerPolicy = "no-referrer";
+
+        const hasChildren = Array.isArray(tile.children) && tile.children.length > 0;
+        if (hasChildren) {
+            a.classList.add("has-children");
+        }
+
+        const img = document.createElement("img");
+        img.className = "icon";
+        img.src = tile.iconUrl || "";
+        img.alt = "";
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = tile.name || "LINK";
+
+        a.appendChild(img);
+        a.appendChild(label);
+
+        if (hasChildren) {
+            a.addEventListener("contextmenu", (event) => {
+                event.preventDefault();
+                openSubmenu(tile);
+            });
+
+           a.addEventListener("pointerdown", (event) => {
+                if (event.pointerType === "mouse" && event.button !== 0) {
+                    return;
+                }
+            
+                longPressTriggered = false;
+                clearTimeout(longPressTimer);
+            
+                /*
+                 * Původní dotyk zůstane přiřazen původní dlaždici,
+                 * i když se mezitím otevře submenu pod prstem.
+                 */
+                if (a.setPointerCapture) {
+                    try {
+                        a.setPointerCapture(event.pointerId);
+                    } catch (_) {
+                        // Některé prohlížeče pointer capture nepodporují.
+                    }
+                }
+            
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    submenuTouchLocked = true;
+            
+                    submenuGrid.classList.add("touch-locked");
+            
+                    openSubmenu(tile);
+                }, LONG_PRESS_MS);
+            });
+
+            ["pointerup", "pointercancel"].forEach(type => {
+                a.addEventListener(type, () => {
+                    clearTimeout(longPressTimer);
+            
+                    if (submenuTouchLocked) {
+                        /*
+                         * Krátké zpoždění potlačí i následné syntetické
+                         * kliknutí, které může Android Chrome vytvořit.
+                         */
+                        setTimeout(() => {
+                            submenuTouchLocked = false;
+                            submenuGrid.classList.remove("touch-locked");
+                        }, 150);
+                    }
+                });
+            });
+            
+            a.addEventListener("pointerleave", () => {
+                /*
+                 * Pokud long press ještě nebyl aktivován,
+                 * opuštění dlaždice časovač zruší.
+                 */
+                if (!longPressTriggered) {
+                    clearTimeout(longPressTimer);
+                }
+            });
+
+            a.addEventListener("click", (event) => {
+                if (longPressTriggered) {
+                    event.preventDefault();
+                    longPressTriggered = false;
+                }
+            });
+        }
+
+        return a;
+    }
+
+   function openSubmenu(tile) {
+        const children = Array.isArray(tile.children)
+            ? tile.children
+            : [];
+    
+        if (children.length === 0) {
+            return;
+        }
+    
+        submenuTitle.textContent = tile.name || "Další odkazy";
+        submenuGrid.innerHTML = "";
+    
+        children.forEach(child => {
+            submenuGrid.appendChild(createTile(child));
+        });
+    
+        submenuOverlay.classList.add("open");
+        submenuOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeSubmenu() {
+        submenuOverlay.classList.remove("open");
+        submenuOverlay.setAttribute("aria-hidden", "true");
+    
+        clearTimeout(longPressTimer);
+        submenuTouchLocked = false;
+        submenuGrid.classList.remove("touch-locked");
+    }
+
+    submenuClose.addEventListener("click", closeSubmenu);
+
+    submenuOverlay.addEventListener("click", (event) => {
+        if (event.target === submenuOverlay) {
+            closeSubmenu();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSubmenu();
+        }
+    });
+
+    function render() {
+        try {
+            const data = JSON.parse(dataEl.textContent || "{\"tiles\":[]}");
+            const tiles = Array.isArray(data.tiles) ? data.tiles : [];
+
+            grid.innerHTML = "";
+
+            tiles.forEach(tile => {
+                grid.appendChild(createTile(tile));
+            });
+        } catch (error) {
+            console.error("Chyba v launcher-data JSON:", error);
+            grid.innerHTML = `
+                <div style="grid-column:1/-1;padding:16px;background:#7f1d1d;border-radius:12px;">
+                    Chyba v datech rozcestníku: ${error.message}
+                </div>
+            `;
+        }
+    }
+
+    render();
+})();
+</script>
+</body>
+</html>
